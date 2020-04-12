@@ -2,18 +2,32 @@
 
 const {parser} = require('shargs')
 const {number, string, flag} = require('shargs-opts')
-const {cast, flagsAsBools, requireOptions, splitShortOptions} = require('shargs-parser')
+const {cast, flagsAsBools, requireOptions, splitShortOptions, traverseOpts} = require('shargs-parser')
 const {note, optsList, space, synopsis, usage} = require('shargs-usage')
 
 const opts = [
   string('question', ['-q', '--question'], {desc: 'A question.', required: true}),
-  number('answer', ['-a', '--answer'], {desc: 'The answer.', defaultValues: [42]}),
+  number('answer', ['-a', '--answer'], {desc: 'The answer.'}),
   flag('help', ['-h', '--help'], {desc: 'Print this help message and exit.'})
 ]
 
+const answerQuestion = ({errs, opts}) => new Promise(resolve =>
+  setTimeout(
+    () => {
+      const isAnswer = ({key}) => key === 'answer'
+      const answer42 = opt => ({
+        opts: [{...opt, values: opt.values || ['42']}]
+      })
+
+      resolve(traverseOpts(isAnswer)(answer42)({errs, opts}))
+    },
+    5000
+  )
+)
+
 const stages = {
   argv: [splitShortOptions],
-  opts: [requireOptions, cast],
+  opts: [requireOptions, answerQuestion, cast],
   args: [flagsAsBools]
 }
 
