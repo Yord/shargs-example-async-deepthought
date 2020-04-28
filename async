@@ -1,15 +1,36 @@
 #!/usr/bin/env node
 
 const {parser} = require('shargs')
-const {number, string, flag} = require('shargs-opts')
-const {cast, flagsAsBools, requireOptions, splitShortOptions, traverseOpts} = require('shargs-parser')
-const {note, optsList, space, synopsis, usage} = require('shargs-usage')
+const {command, flag, number, program, string, stringPos} = require('shargs-opts')
+const {cast, flagsAsBools, requireOptions, restrictToOnly, reverseFlags, splitShortOptions, traverseOpts, verifyOpts} = require('shargs-parser')
+const {desc, optsDef, optsLists, space, synopses, synopsis, usage} = require('shargs-usage')
+
+const description = (
+  'Deep Thought was created to come up with the Answer to ' +
+  'The Ultimate Question of Life, the Universe, and Everything.'
+)
+
+const askOpts = [
+  string('format', ['--format'], {only: ['json', 'xml'], defaultValues: ['json'], desc: 'Respond either with json or xml.'}),
+  flag('html', ['--no-html'], {reverse: true, desc: 'Removes HTML tags.'}),
+  flag('help', ['-h', '--help'], {desc: 'Print this help message and exit.'}),
+  stringPos('question', {required: true, desc: 'State your question.'})
+]
 
 const opts = [
-  string('question', ['-q', '--question'], {desc: 'A question.', required: true}),
-  number('answer', ['-a', '--answer'], {desc: 'The answer.'}),
+  command(askOpts)('ask', ['ask'], {required: true, desc: 'Ask a question.'}),
+  number('answer', ['-a', '--answer'], {defaultValues: [42], desc: 'The answer.'}),
   flag('help', ['-h', '--help'], {desc: 'Print this help message and exit.'})
 ]
+
+const ask = program('deepThought ask', askOpts, {desc: description})
+
+const deepThought = program('deepThought', opts, {desc: description})
+
+const rules = opts => (
+  !opts.some(_ => _.key === 'html' && typeof _.values !== 'undefined') ||
+  opts.some(_ => _.key === 'format' && (typeof _.values === 'undefined' || _.values[0] === 'json'))
+)
 
 const answerQuestion = ({errs, opts}) => new Promise(resolve =>
   setTimeout(
@@ -25,46 +46,70 @@ const answerQuestion = ({errs, opts}) => new Promise(resolve =>
   )
 )
 
+const checks = {
+  opts: [requireOptions]
+}
+
+const askChecks = {
+  opts: [requireOptions, verifyOpts(rules)]
+}
+
 const stages = {
   argv: [splitShortOptions],
-  opts: [requireOptions, answerQuestion, cast],
+  opts: [reverseFlags, restrictToOnly, answerQuestion, cast],
   args: [flagsAsBools]
 }
 
 const docs = usage([
-  synopsis('deepThought'),
+  synopses,
   space,
-  optsList,
+  optsLists,
   space,
-  note(
-    'Deep Thought was created to come up with the Answer to ' +
-    'The Ultimate Question of Life, the Universe, and Everything.'
-  )
+  desc
+])
+
+const askDocs = usage([
+  synopsis,
+  space,
+  optsDef,
+  space,
+  desc
 ])
 
 const style = {
-  line: {width: 80},
+  line: [{width: 80}],
+  desc: [{padStart: 4, width: 76}],
   cols: [{width: 25}, {width: 55}]
 }
 
 const argv = process.argv.slice(2)
 
-const deepThought = parser(stages, {async: true})(opts)
-
-deepThought(argv)
+const askParser = parser(stages, {checks: askChecks, mode: 'async'})
+const deepThoughtParser = parser(stages, {checks, parsers: {ask: askParser}, mode: 'async'})(deepThought)
+deepThoughtParser(argv)
 .then(({args, errs}) => {
-  const help = docs(opts)(style)
-
   if (args.help) {
+    const help = docs(deepThought)(style)
     console.log(help)
     process.exit(0)
-  } else if (errs.length > 0) {
-    errs.forEach(
-      ({code, msg, info}) => console.log(`${code}: ${msg}\n\nInfo: ${JSON.stringify(info, null, 2)}`)
-    )
-    process.exit(1)
-  } else {
-    console.log(`The answer is: ${args.answer}\n\n${JSON.stringify(args, null, 2)}`)
+  }
+  
+  if (args.ask && args.ask.help) {
+    const askHelp = askDocs(ask)(style)
+    console.log(askHelp)
     process.exit(0)
   }
+  
+  if (errs.length > 0) {
+    errs.forEach(({code, msg}) => console.log(`${code}: ${msg}`))
+    process.exit(1)
+  }
+  
+  console.log(`The answer is: ${args.answer}`)
+  console.log(JSON.stringify(args, null, 2))
+  process.exit(0)
+})
+.catch(reason => {
+  console.log(reason)
+  process.exit(1)
 })
