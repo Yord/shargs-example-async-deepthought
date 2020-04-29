@@ -2,7 +2,7 @@
 
 const {parser} = require('shargs')
 const {command, flag, number, program, string, stringPos} = require('shargs-opts')
-const {cast, flagsAsBools, requireOptions, restrictToOnly, reverseFlags, splitShortOptions, traverseOpts, verifyOpts} = require('shargs-parser')
+const {cast, flagsAsBools, requireOpts, restrictToOnly, reverseFlags, splitShortOpts, traverseOpts, verifyOpts} = require('shargs-parser')
 const {desc, optsDef, optsLists, space, synopses, synopsis, usage} = require('shargs-usage')
 
 const description = (
@@ -47,15 +47,15 @@ const answerQuestion = ({errs, opts}) => new Promise(resolve =>
 )
 
 const checks = {
-  opts: [requireOptions]
+  opts: [requireOpts]
 }
 
 const askChecks = {
-  opts: [requireOptions, verifyOpts(rules)]
+  opts: [requireOpts, verifyOpts(rules)]
 }
 
 const stages = {
-  argv: [splitShortOptions],
+  argv: [splitShortOpts],
   opts: [reverseFlags, restrictToOnly, answerQuestion, cast],
   args: [flagsAsBools]
 }
