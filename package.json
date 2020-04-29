@@ -1,6 +1,6 @@
 {
   "name": "shargs-example-async",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A sample application of shargs",
   "keywords": [
     "shargs",
@@ -36,6 +36,6 @@
     "shargs": "0.22.4",
     "shargs-opts": "0.4.2",
     "shargs-parser": "0.5.1",
-    "shargs-usage": "0.5.2"
+    "shargs-usage": "0.5.3"
   }
 }
