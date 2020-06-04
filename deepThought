@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const {parser} = require('shargs')
-const {command, flag, number, program, string, stringPos} = require('shargs-opts')
-const {cast, flagsAsBools, requireOpts, restrictToOnly, reverseFlags, splitShortOpts, traverseOpts, verifyOpts} = require('shargs-parser')
+const {subcommand, flag, number, command, string, stringPos} = require('shargs-opts')
+const {cast, flagsAsBools, requireOpts, restrictToOnly, reverseFlags, setDefaultValues, splitShortOpts, verifyOpts} = require('shargs-parser')
 const {desc, optsDef, optsLists, space, synopses, synopsis, usage} = require('shargs-usage')
 
 const description = (
@@ -18,46 +18,28 @@ const askOpts = [
 ]
 
 const opts = [
-  command(askOpts)('ask', ['ask'], {required: true, desc: 'Ask a question.'}),
+  subcommand(askOpts)('ask', ['ask'], {required: true, desc: 'Ask a question.'}),
   number('answer', ['-a', '--answer'], {defaultValues: [42], desc: 'The answer.'}),
   flag('help', ['-h', '--help'], {desc: 'Print this help message and exit.'})
 ]
 
-const ask = program('deepThought ask', askOpts, {desc: description})
+const ask = command('deepThought ask', askOpts, {desc: description})
 
-const deepThought = program('deepThought', opts, {desc: description})
+const deepThought = command('deepThought', opts, {desc: description})
 
 const rules = opts => (
   !opts.some(_ => _.key === 'html' && typeof _.values !== 'undefined') ||
   opts.some(_ => _.key === 'format' && (typeof _.values === 'undefined' || _.values[0] === 'json'))
 )
 
-const answerQuestion = ({errs, opts}) => new Promise(resolve =>
-  setTimeout(
-    () => {
-      const isAnswer = ({key}) => key === 'answer'
-      const answer42 = opt => ({
-        opts: [{...opt, values: opt.values || ['42']}]
-      })
-
-      resolve(traverseOpts(isAnswer)(answer42)({errs, opts}))
-    },
-    5000
-  )
-)
-
-const checks = {
-  opts: [requireOpts]
-}
-
-const askChecks = {
-  opts: [requireOpts, verifyOpts(rules)]
-}
-
 const stages = {
   argv: [splitShortOpts],
-  opts: [reverseFlags, restrictToOnly, answerQuestion, cast],
+  opts: [setDefaultValues, requireOpts, reverseFlags, restrictToOnly, cast],
   args: [flagsAsBools]
+}
+
+const substages = {
+  ask: [verifyOpts(rules), ...stages.opts]
 }
 
 const docs = usage([
@@ -84,10 +66,8 @@ const style = {
 
 const argv = process.argv.slice(2)
 
-const askParser = parser(stages, {checks: askChecks, mode: 'async'})
-const deepThoughtParser = parser(stages, {checks, parsers: {ask: askParser}, mode: 'async'})(deepThought)
-deepThoughtParser(argv)
-.then(({args, errs}) => {
+const deepThoughtParser = parser(stages, substages)(deepThought)
+deepThoughtParser(argv).then(({args, errs}) => {
   if (args.help) {
     const help = docs(deepThought)(style)
     console.log(help)
@@ -108,8 +88,4 @@ deepThoughtParser(argv)
   console.log(`The answer is: ${args.answer}`)
   console.log(JSON.stringify(args, null, 2))
   process.exit(0)
-})
-.catch(reason => {
-  console.log(reason)
-  process.exit(1)
 })

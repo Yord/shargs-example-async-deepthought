@@ -12,13 +12,13 @@ See the [`shargs` github repository][shargs] for more details!
 $ git clone https://github.com/Yord/shargs-example-async.git
 $ cd shargs-example-async
 $ npm i
-$ chmod +x ./async
+$ chmod +x ./deepThought
 ```
 
 ## Example
 
 This repository is a simple example of a program using the [shargs][shargs] command-line parser.
-The program can be found in the [`async`][async] script.
+The program can be found in the [`deepThought`][deepThought] script.
 
 ## Run the Example
 
@@ -29,7 +29,7 @@ The example may be run with different parameters:
 Providing a `--help` flag:
 
 ```bash
-$ ./async --help
+$ ./deepThought --help
 ```
 
 Prints the following text to the console:
@@ -79,7 +79,7 @@ Life, the Universe, and Everything.
 Providing `ask` with a question:
 
 ```bash
-$ ./async ask "What is the meaning of life, the universe, and everything?"
+$ ./deepThought ask "What is the meaning of life, the universe, and everything?"
 ```
 
 Prints the following text to the console:
@@ -108,7 +108,7 @@ $ ./deepThought --answer 23
 Prints the following error:
 
 ```bash
-Required option is missing: An option that is marked as required has not been provided.
+RequiredOptionMissing: An option that is marked as required has not been provided.
 ```
 
 Providing a wrong `--format`:
@@ -120,7 +120,8 @@ $ ./deepThought ask --format csv
 Prints the following error:
 
 ```bash
-Value restriction violated: A value lies outside the allowed values of an option.
+RequiredOptionMissing: An option that is marked as required has not been provided.
+ValueRestrictionsViolated: A value lies outside the allowed values of an option.
 ```
 
 ## Reporting Issues
@@ -134,7 +135,7 @@ Please report issues [in the `shargs` tracker][issues]!
 
 
 [contribute]: https://github.com/Yord/shargs#contributing
-[async]: https://github.com/Yord/shargs-example-async/blob/master/async
+[deepThought]: https://github.com/Yord/shargs-example-async/blob/master/deepThought
 [issues]: https://github.com/Yord/shargs/issues
 [license]: https://github.com/Yord/shargs-example-async/blob/master/LICENSE
 [node]: https://nodejs.org/
