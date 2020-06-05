@@ -1,13 +1,13 @@
 {
-  "name": "shargs-example-async",
-  "version": "0.4.0",
+  "name": "shargs-example-async-deepthought",
+  "version": "0.4.1",
   "description": "A sample application of shargs",
   "keywords": [
     "shargs",
     "command-line",
     "parser"
   ],
-  "homepage": "https://github.com/Yord/shargs-example-async",
+  "homepage": "https://github.com/Yord/shargs-example-async-deepthought",
   "bugs": {
     "url": "https://github.com/Yord/shargs/issues"
   },
@@ -19,7 +19,7 @@
   "main": "./src/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Yord/shargs-example-async.git"
+    "url": "https://github.com/Yord/shargs-example-async-deepthought.git"
   },
   "scripts": {
     "start": "node ./async"
