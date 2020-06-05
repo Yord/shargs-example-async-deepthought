@@ -1,6 +1,6 @@
 {
-  "version": "0.4.0",
   "name": "shargs-example-async-deepthought",
+  "version": "0.4.1",
   "description": "A sample application of shargs",
   "keywords": [
     "shargs",
