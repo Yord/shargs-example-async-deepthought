@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const {parser} = require('shargs')
-const {subcommand, flag, number, command, string, stringPos} = require('shargs-opts')
-const {cast, flagsAsBools, requireOpts, restrictToOnly, reverseFlags, setDefaultValues, splitShortOpts, verifyOpts} = require('shargs-parser')
-const {desc, optsDef, optsLists, space, synopses, synopsis, usage} = require('shargs-usage')
+const {parser} = require('shargs/core')
+const {subcommand, flag, number, command, string, stringPos} = require('shargs/opts')
+const {cast, flagsAsBools, requireOpts, restrictToOnly, reverseFlags, setDefaultValues, splitShortOpts, verifyOpts} = require('shargs/parser')
+const {desc, optsDef, optsLists, space, synopses, synopsis, usage} = require('shargs/usage')
 
 const description = (
   'Deep Thought was created to come up with the Answer to ' +
